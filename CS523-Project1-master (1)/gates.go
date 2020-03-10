@@ -124,7 +124,7 @@ func (ro *Reveal) Eval(cep DummyProtocol){
 		if received == len(cep.Peers)-1 {
 			cep.Output = cep.peerCircuit[ro.Out]
 			fmt.Println("completed with output", cep.Output)
-			close(cep.Chan)
+			break
 		}
 	}
 
