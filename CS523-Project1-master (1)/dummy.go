@@ -14,6 +14,7 @@ type DummyMessage struct {
 type DummyProtocol struct {
 	*LocalParty
 	Chan  		 chan DummyMessage
+	Chan_beav	chan BeaverMessage // added
 	Peers		 map[PartyID]*DummyRemote
 
 	peerCircuit map[WireID]uint64// Added
@@ -24,13 +25,15 @@ type DummyProtocol struct {
 
 type DummyRemote struct {
 	*RemoteParty
-	Chan chan DummyMessage
+	Chan      chan DummyMessage
+	Chan_beav chan BeaverMessage
 }
 
 func (lp *LocalParty) NewDummyProtocol(input uint64) *DummyProtocol {
 	cep := new(DummyProtocol)
 	cep.LocalParty = lp
 	cep.Chan = make(chan DummyMessage, 32)
+	cep.Chan_beav = make(chan BeaverMessage, 32)
 	cep.Peers = make(map[PartyID]*DummyRemote, len(lp.Peers))
 	for i, rp := range lp.Peers {
 		cep.Peers[i] = &DummyRemote{
