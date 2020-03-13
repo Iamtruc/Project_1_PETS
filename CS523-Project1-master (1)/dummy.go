@@ -10,7 +10,7 @@ type DummyMessage struct {
 	Party PartyID
 	Value uint64
 }
-
+// Don't forget to rename this part "online.go"
 type DummyProtocol struct {
 	*LocalParty
 	Chan  		 chan DummyMessage
@@ -39,6 +39,7 @@ func (lp *LocalParty) NewDummyProtocol(input uint64) *DummyProtocol {
 		cep.Peers[i] = &DummyRemote{
 			RemoteParty:  rp,
 			Chan:         make(chan DummyMessage, 32),
+			Chan_beav: make(chan BeaverMessage, 32),
 		}
 	}
 
@@ -88,6 +89,8 @@ func (cep *DummyProtocol) BindNetwork(nw *TCPNetworkStruct) {
 		}(conn, rp)
 	}
 }
+
+// Useless, to be deleated.
 
 func (cep *DummyProtocol) Run() {
 

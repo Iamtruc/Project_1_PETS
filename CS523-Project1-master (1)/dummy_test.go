@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestDummyProtocol(t *testing.T) {
+func TestEval(t *testing.T) {
 	for _,my_circuit := range TestCircuits{
 	peers := my_circuit.Peers
 	N := uint64(len(peers))
