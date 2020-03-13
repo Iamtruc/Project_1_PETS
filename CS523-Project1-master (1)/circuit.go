@@ -6,7 +6,6 @@ import(
 )
 
 func (cep *DummyProtocol) Splitshare(Inputs map[PartyID]map[GateID]uint64)(){
-	fmt.Println(cep, "is splitting")
 
 	// We start by getting the element in Input associated to cep's ID
 	for _,element := range Inputs[cep.ID] {
@@ -40,7 +39,6 @@ func (cep *DummyProtocol) Splitshare(Inputs map[PartyID]map[GateID]uint64)(){
 	// We then wait for them to send their shares to us.
 	received := 0
 	for m := range cep.Chan {
-		fmt.Println(cep, "received message from", m.Party, ":", m.Value)
 		cep.peerInput[m.Party] = m.Value
 		received++
 		if received == len(cep.Peers)-1 {

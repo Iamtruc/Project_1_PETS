@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 func (io *Input) canEval(cep DummyProtocol)(error){
 	var err error
@@ -79,7 +82,49 @@ func (mo *Mult) canEval(cep DummyProtocol)(error){
 }
 
 func (mo *Mult) Eval(cep DummyProtocol){
-	cep.peerCircuit[mo.Out] = cep.peerCircuit[mo.In1] * cep.peerCircuit[mo.In2]
+	var a uint64
+	var b uint64
+	var c uint64
+	var n = len(cep.Peers)
+
+	if cep.ID == 0{
+
+	}
+
+	time.Sleep(time.Second/100)
+
+	// I wanted to create a Beaver_Channel which would send only the values x-a and y-b but I failed to do so.
+	// I decided to do something more simple : if the party indice is -1 : you send x-a, if it is -2, you send y-b
+	xminusa := cep.peerCircuit[mo.In1] - a
+	yminusb := cep.peerCircuit[mo.In2] - b
+	for _, peer := range cep.Peers {
+		if peer.ID != cep.ID {
+			peer.Chan<- DummyMessage{PartyID(n + 1), xminusa}
+			peer.Chan<- DummyMessage{PartyID(n + 2), yminusb}
+		}
+	}
+
+	received := 0
+	for m := range cep.Chan {
+
+		if m.Party == PartyID(n + 1){
+			xminusa += m.Value
+			received ++
+		}
+		if m.Party == PartyID(n + 2){
+			yminusb += m.Value
+			received ++
+		}
+		if received == 2*(len(cep.Peers)-1) {
+			break
+		}
+	}
+
+	cep.peerCircuit[mo.Out] = c + cep.peerCircuit[mo.In1] * yminusb + cep.peerCircuit[mo.In2] * xminusa
+	if cep.ID == 0{
+		cep.peerCircuit[mo.Out]-= xminusa * yminusb
+	}
+	time.Sleep(time.Second/100) // Just to make sure that everybody is on the same page. Problem : slow.
 }
 
 func (mco *MultCst) canEval(cep DummyProtocol)(error){
@@ -118,12 +163,11 @@ func (ro *Reveal) Eval(cep DummyProtocol){
 
 	received := 0
 	for m := range cep.Chan {
-		fmt.Println(cep, "received message from", m.Party, ":", m.Value)
 		cep.peerCircuit[ro.Out] += m.Value
 		received++
 		if received == len(cep.Peers)-1 {
 			cep.Output = cep.peerCircuit[ro.Out]
-			fmt.Println("completed with output", cep.Output)
+			fmt.Println(cep.ID, "completed with output", cep.Output)
 			break
 		}
 	}

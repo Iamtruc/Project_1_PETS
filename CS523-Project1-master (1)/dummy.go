@@ -14,7 +14,6 @@ type DummyMessage struct {
 type DummyProtocol struct {
 	*LocalParty
 	Chan  		 chan DummyMessage
-	Chan_beav	chan BeaverMessage // added
 	Peers		 map[PartyID]*DummyRemote
 
 	peerCircuit map[WireID]uint64// Added
@@ -26,20 +25,17 @@ type DummyProtocol struct {
 type DummyRemote struct {
 	*RemoteParty
 	Chan      chan DummyMessage
-	Chan_beav chan BeaverMessage
 }
 
 func (lp *LocalParty) NewDummyProtocol(input uint64) *DummyProtocol {
 	cep := new(DummyProtocol)
 	cep.LocalParty = lp
 	cep.Chan = make(chan DummyMessage, 32)
-	cep.Chan_beav = make(chan BeaverMessage, 32)
 	cep.Peers = make(map[PartyID]*DummyRemote, len(lp.Peers))
 	for i, rp := range lp.Peers {
 		cep.Peers[i] = &DummyRemote{
 			RemoteParty:  rp,
 			Chan:         make(chan DummyMessage, 32),
-			Chan_beav: make(chan BeaverMessage, 32),
 		}
 	}
 
@@ -86,11 +82,12 @@ func (cep *DummyProtocol) BindNetwork(nw *TCPNetworkStruct) {
 				check(binary.Write(conn, binary.BigEndian, m.Party))
 				check(binary.Write(conn, binary.BigEndian, m.Value))
 			}
+
 		}(conn, rp)
 	}
 }
 
-// Useless, to be deleated.
+// Useless, to be deleted.
 
 func (cep *DummyProtocol) Run() {
 
