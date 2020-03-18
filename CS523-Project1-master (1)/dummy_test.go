@@ -8,7 +8,7 @@ import (
 )
 
 func TestEval(t *testing.T) {
-	for i:= 1;i<len(TestCircuits);i++{
+	for i:= 0;i<len(TestCircuits);i++{
 		fmt.Println("circuit"+strconv.Itoa(i), i)
 		t.Run("circuit"+strconv.Itoa(i),func(t *testing.T) {
 			my_circuit := TestCircuits[i]
@@ -16,6 +16,7 @@ func TestEval(t *testing.T) {
 			N := uint64(len(peers))
 			P := make([]*LocalParty, N, N)
 			dummyProtocol := make([]*DummyProtocol, N, N)
+			beaverprotocol := make([]*BeaverProtocol, N, N)
 
 			var err error
 			wg := new(sync.WaitGroup)
@@ -25,12 +26,20 @@ func TestEval(t *testing.T) {
 				check(err)
 
 				dummyProtocol[i] = P[i].NewDummyProtocol(uint64(i + 10))
+				beaverprotocol[i] = P[i].NewBeaverProtocol()
+				dummyProtocol[i].BeaverProt = beaverprotocol[i]
+				beaverprotocol[i].ID = dummyProtocol[i].ID
 			}
 
 			network := GetTestingTCPNetwork(P)
-			fmt.Println("parties connected")
 
 			for i, Pi := range dummyProtocol {
+				Pi.BindNetwork(network[i])
+			}
+
+			network = GetTestingTCPNetwork(P)
+
+			for i, Pi := range beaverprotocol {
 				Pi.BindNetwork(network[i])
 			}
 
@@ -41,6 +50,7 @@ func TestEval(t *testing.T) {
 				go p.Splitshare(my_circuit.Inputs)
 			}
 			wg.Wait()
+
 			for _, p := range dummyProtocol {
 				p.Add(1)
 				go p.readcircuit(my_circuit.Circuit)

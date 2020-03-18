@@ -18,6 +18,10 @@ type DummyProtocol struct {
 
 	peerCircuit map[WireID]uint64// Added
 	peerInput map[PartyID]uint64// Added
+	BeaverA uint64// Added
+	BeaverB uint64// Added
+	BeaverC uint64// Added
+	BeaverProt *BeaverProtocol
 	Input uint64
 	Output uint64
 }

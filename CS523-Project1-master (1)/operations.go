@@ -6,7 +6,7 @@ type GateID uint64
 
 type Operation interface {
 	Output() WireID
-	canEval(cep DummyProtocol) error// Added
+	canEval(cep DummyProtocol) (error, string)// Added
 	Eval(cep DummyProtocol)// Added
 }
 

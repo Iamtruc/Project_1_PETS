@@ -2,61 +2,62 @@ package main
 
 import (
 	"fmt"
+	"time"
 )
 
-func (io *Input) canEval(cep DummyProtocol)(error){
+func (io *Input) canEval(cep DummyProtocol)(error, string){
 	var err error
 	if _, ok := cep.peerCircuit[io.Out]; ok{
-		return err
+		return err, "Input"
 	}
-	return nil
+	return nil, "Input"
 }
 
 func (io *Input) Eval(cep DummyProtocol)(){
 	cep.peerCircuit[io.Out] = cep.peerInput[io.Party]
 }
 
-func (ao *Add) canEval(cep DummyProtocol)(error){
+func (ao *Add) canEval(cep DummyProtocol)(error, string){
 	var err error
 	_, ok1 := cep.peerCircuit[ao.In1]
 	_, ok2 := cep.peerCircuit[ao.In2]
 	_, not_ok := cep.peerCircuit[ao.Out]
 	if (ok1) && (ok2) && (!not_ok){
-		return nil
+		return nil, "Add"
 		// Be very careful, empty map arguments are initialized as 0 and problem if you want to add 0
 	}
-	return err
+	return err, "Add"
 }
 
 func (ao *Add) Eval(cep DummyProtocol){
 	cep.peerCircuit[ao.Out] = cep.peerCircuit[ao.In1] + cep.peerCircuit[ao.In2]
 }
 
-func (so *Sub) canEval(cep DummyProtocol)(error){
+func (so *Sub) canEval(cep DummyProtocol)(error, string){
 	var err error
 	_, ok1 := cep.peerCircuit[so.In1]
 	_, ok2 := cep.peerCircuit[so.In2]
 	_, not_ok := cep.peerCircuit[so.Out]
 	if (ok1) && (ok2) && (!not_ok){
-		return nil
+		return nil, "Sub"
 		// Be very careful, empty map arguments are initialized as 0 and problem if you want to add 0
 	}
-	return err
+	return err, "Sub"
 }
 
 func (so *Sub) Eval(cep DummyProtocol){
 	cep.peerCircuit[so.Out] = cep.peerCircuit[so.In1] - cep.peerCircuit[so.In2]
 }
 
-func (aco *AddCst) canEval(cep DummyProtocol)(error){
+func (aco *AddCst) canEval(cep DummyProtocol)(error, string){
 	var err error
 	_, ok1 := cep.peerCircuit[aco.In]
 	_, not_ok := cep.peerCircuit[aco.Out]
 	if (ok1) && (!not_ok){
-		return nil
+		return nil, "AddCst"
 		// Be very careful, empty map arguments are initialized as 0 and problem if you want to add 0
 	}
-	return err
+	return err, "Addcst"
 }
 
 func (aco *AddCst) Eval(cep DummyProtocol){
@@ -68,46 +69,60 @@ func (aco *AddCst) Eval(cep DummyProtocol){
 	}
 }
 
-func (mo *Mult) canEval(cep DummyProtocol)(error){
+func (mo *Mult) canEval(cep DummyProtocol)(error, string){
 	var err error
 	_, ok1 := cep.peerCircuit[mo.In1]
 	_, ok2 := cep.peerCircuit[mo.In2]
 	_, not_ok := cep.peerCircuit[mo.Out]
 	if (ok1) && (ok2) && (!not_ok){
-		return nil
+		return nil, "Mult"
 		// Be very careful, empty map arguments are initialized as 0 and problem if you want to add 0
 	}
-	return err
+	return err, "Mult"
 }
 
 func (mo *Mult) Eval(cep DummyProtocol){
-	
+
+	var xminusa = cep.peerCircuit[mo.In1] - cep.BeaverA
+	var yminusb = cep.peerCircuit[mo.In2] - cep.BeaverB
+	var My_c = cep.BeaverA * cep.BeaverC
+
+	xminusa, yminusb = cep.BeaverProt.exchangexminusa(xminusa, yminusb)
+
+	switch cep.ID{
+	case 0:
+		cep.peerCircuit[mo.Out] = My_c + cep.peerCircuit[mo.In1] * yminusb + cep.peerCircuit[mo.In2] * xminusa -  xminusa * yminusb
+	default:
+		cep.peerCircuit[mo.Out] = My_c + cep.peerCircuit[mo.In1] * yminusb + cep.peerCircuit[mo.In2] * xminusa
+		time.Sleep(time.Second/10)
+		}
+
 }
 
-func (mco *MultCst) canEval(cep DummyProtocol)(error){
+func (mco *MultCst) canEval(cep DummyProtocol)(error, string){
 	var err error
 	_, ok1 := cep.peerCircuit[mco.In]
 	_, not_ok := cep.peerCircuit[mco.Out]
 	if (ok1) && (!not_ok){
-		return nil
+		return nil, "MultCst"
 		// Be very careful, empty map arguments are initialized as 0 and problem if you want to add 0
 	}
-	return err
+	return err, "MultCst"
 }
 
 func (mco *MultCst) Eval(cep DummyProtocol){
 	cep.peerCircuit[mco.Out] = cep.peerCircuit[mco.In] * mco.CstValue
 }
 
-func (ro *Reveal) canEval(cep DummyProtocol)(error){
+func (ro *Reveal) canEval(cep DummyProtocol)(error, string){
 	var err error
 	_, ok1 := cep.peerCircuit[ro.In]
 	_, not_ok := cep.peerCircuit[ro.Out]
 	if (ok1) && (!not_ok){
-		return nil
+		return nil, "Reveal"
 		// Be very careful, empty map arguments are initialized as 0 and problem if you want to add 0
 	}
-	return err
+	return err, "Reveal"
 }
 
 func (ro *Reveal) Eval(cep DummyProtocol){

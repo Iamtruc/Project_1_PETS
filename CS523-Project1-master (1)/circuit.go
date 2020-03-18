@@ -1,8 +1,9 @@
 package main
 
-import(
+import (
 	"fmt"
 	"math/rand"
+	"time"
 )
 
 func (cep *DummyProtocol) Splitshare(Inputs map[PartyID]map[GateID]uint64)(){
@@ -54,9 +55,16 @@ func (cep *DummyProtocol) Splitshare(Inputs map[PartyID]map[GateID]uint64)(){
 func (cep *DummyProtocol) readcircuit(circuit []Operation){
 	// We take a circuit as input and read the circuit until the end.
 	for _,op := range circuit{
-		err := op.canEval(*cep)
+		err, name := op.canEval(*cep)
 		if (err == nil){
-			op.Eval(*cep)
+			switch name{
+			case "Mult":
+				cep.BeaverA, cep.BeaverB, cep.BeaverC = cep.BeaverProt.Run()
+				time.Sleep(time.Second/5)
+				op.Eval(*cep)
+			default:
+				op.Eval(*cep)
+			}
 		}
 		if (err != nil){
 			fmt.Println("Cataschtroumpf")
