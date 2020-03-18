@@ -5,11 +5,43 @@ import (
 )
 
 type BeaverProtocol struct {
-	list_a []uint64
-	list_b []uint64
-	my_sum uint64
+	*LocalParty
+	Chan chan BeaverMessage
+	Peers map[PartyID]*DummyRemote
+	PeerA map [PartyID][]uint64
+	PeerB map [PartyID][]uint64
+	PeerC map [PartyID][]uint64
 }
 
+type BeaverRemoteParty struct{
+	*RemoteParty
+	Chan chan BeaverMessage
+}
+
+type BeaverMessage struct{
+	a uint64
+	b uint64
+	c uint64
+}
+
+type BeaverInputs struct{
+
+}
+
+func (lp *LocalParty) NewBeaverProtocol(input uint64) *DummyProtocol {
+	beav := new(BeaverProtocol)
+	beav.LocalParty = lp
+	beav.Chan = make(chan BeaverMessage, 32)
+	beav.Peers = make(map[PartyID]*DummyRemote, len(lp.Peers))
+	for i, rp := range lp.Peers {
+		cep.Peers[i] = &DummyRemote{
+			RemoteParty:  rp,
+			Chan:         make(chan DummyMessage, 32),
+		}
+	}
+
+	return cep
+}
 
 
 func generate_beaver(n,mod int) ([]uint64, []uint64, uint64){
