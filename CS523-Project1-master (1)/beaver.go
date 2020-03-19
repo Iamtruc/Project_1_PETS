@@ -47,31 +47,61 @@ func (lp *LocalParty) NewBeaverProtocol() *BeaverProtocol {
 }
 
 func (Beav *BeaverProtocol)GenInput(){
-	Beav.mod = 100
-	A := uint64(rand.Intn(Beav.mod))// The mod is to be fixed by the peers. For the time being, it is constant
-	B := uint64(rand.Intn(Beav.mod))
-	Beav.MyInputs.ListA = A
-	Beav.MyInputs.ListB = B
-	Beav.MyInputs.ListC = B
-}
+	Beav.mod = 100// The mod is to be fixed by the peers. For the time being, it is constant
+	var listA []uint64
+	var listB []uint64
+	var SumA uint64
+	var SumB uint64
+	var n = len(Beav.Peers)
+	for i:=0;i<n;i++{
+		A := uint64(rand.Intn(Beav.mod))
+		B := uint64(rand.Intn(Beav.mod))
+		listA = append(listA, A)
+		listB = append(listB, B)
+		SumA += A
+		SumB += B
+	}
 
-func (Beav *BeaverProtocol) Run() (a,b,c uint64){
-	Beav.GenInput()
+	var C = SumA * SumB
+	var little_c uint64
+	var listC []uint64
+	for i:=0;i<n;i++{
+		little_c = uint64(rand.Intn(int(C)/(n-i)+1))
+		listC = append(listC, little_c)
+		C -=little_c
+	}
+	listC[0] += C
 
 	for _, peer := range Beav.Peers{
 		if peer.ID != Beav.ID{
-			peer.BeaverChannel <- BeaverMessage{2, Beav.MyInputs.ListC  }
+			peer.BeaverChannel <- BeaverMessage{0, listA[int(peer.ID)]  }
+			peer.BeaverChannel <- BeaverMessage{1, listB[int(peer.ID)] }
+			peer.BeaverChannel <- BeaverMessage{2, listC[int(peer.ID)]  }
 		}
 	}
 
-	received := 0
-	for m:= range Beav.BeaverChannel{
-		if m.index == 2{
-			Beav.MyInputs.ListC += m.value
-		}
-		received++
-		if received == len(Beav.Peers)-1{
-			break
+	Beav.MyInputs.ListA = listA[0]
+	Beav.MyInputs.ListB = listB[0]
+	Beav.MyInputs.ListC = listC[0]
+}
+
+func (Beav *BeaverProtocol) Run() (a,b,c uint64){
+
+	if Beav.ID != 0{
+		received := 0
+		for m:= range Beav.BeaverChannel{
+			switch m.index {
+			case 0:
+				Beav.MyInputs.ListA = m.value
+			case 1:
+				Beav.MyInputs.ListB = m.value
+			case 2:
+				Beav.MyInputs.ListC = m.value
+			}
+			received++
+			if received == 3{
+				break
+			}
 		}
 	}
 

@@ -85,7 +85,7 @@ func (mo *Mult) Eval(cep DummyProtocol){
 
 	var xminusa = cep.peerCircuit[mo.In1] - cep.BeaverA
 	var yminusb = cep.peerCircuit[mo.In2] - cep.BeaverB
-	var My_c = cep.BeaverA * cep.BeaverC
+	var My_c = cep.BeaverC
 
 	xminusa, yminusb = cep.BeaverProt.exchangexminusa(xminusa, yminusb)
 

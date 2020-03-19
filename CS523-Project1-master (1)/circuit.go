@@ -59,9 +59,17 @@ func (cep *DummyProtocol) readcircuit(circuit []Operation){
 		if (err == nil){
 			switch name{
 			case "Mult":
-				cep.BeaverA, cep.BeaverB, cep.BeaverC = cep.BeaverProt.Run()
-				time.Sleep(time.Second/5)
-				op.Eval(*cep)
+				switch cep.ID{
+				case 0:
+					cep.BeaverProt.GenInput()
+					cep.BeaverA, cep.BeaverB, cep.BeaverC = cep.BeaverProt.Run()
+					time.Sleep(time.Second/5)
+					op.Eval(*cep)
+				default:
+					cep.BeaverA, cep.BeaverB, cep.BeaverC = cep.BeaverProt.Run()
+					time.Sleep(time.Second/5)
+					op.Eval(*cep)
+				}
 			default:
 				op.Eval(*cep)
 			}
