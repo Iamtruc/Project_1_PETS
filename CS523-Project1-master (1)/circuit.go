@@ -70,6 +70,13 @@ func (cep *DummyProtocol) readcircuit(circuit []Operation){
 					time.Sleep(time.Second/5)
 					op.Eval(*cep)
 				}
+
+			case "Reveal":
+				cep.Output = op.Eval(*cep)
+				if cep.WaitGroup != nil {
+					cep.WaitGroup.Done()
+				}
+
 			default:
 				op.Eval(*cep)
 			}

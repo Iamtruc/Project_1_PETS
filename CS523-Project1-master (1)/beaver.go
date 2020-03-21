@@ -2,9 +2,18 @@ package main
 
 import (
 	"encoding/binary"
+	"github.com/ldsec/lattigo/bfv" //The lattigo file was stored locally. Golang imports the local file
+	//"github.com/ldsec/lattigo/ring"
 	"math/rand"
 	"net"
 )
+
+var params = bfv.DefaultParams[bfv.PN13QP218]
+var N = params.LogN
+var T = params.T
+var sigm = params.Sigma
+var Q = params.LogQi
+
 
 type BeaverProtocol struct {
 	*LocalParty

@@ -57,7 +57,16 @@ func TestEval(t *testing.T) {
 			}
 			wg.Wait()
 
-			fmt.Println("test completed")
+			correct:= 0
+			for _, p := range dummyProtocol {
+				if p.Output == my_circuit.ExpOutput{
+					correct++
+				}
+			}
+
+			if correct == int(N){
+				fmt.Println("test completed")
+			}
 		})
 	}
 

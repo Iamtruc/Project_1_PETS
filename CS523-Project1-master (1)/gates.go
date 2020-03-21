@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -13,8 +12,9 @@ func (io *Input) canEval(cep DummyProtocol)(error, string){
 	return nil, "Input"
 }
 
-func (io *Input) Eval(cep DummyProtocol)(){
+func (io *Input) Eval(cep DummyProtocol)(uint64){
 	cep.peerCircuit[io.Out] = cep.peerInput[io.Party]
+	return cep.peerCircuit[io.Out]
 }
 
 func (ao *Add) canEval(cep DummyProtocol)(error, string){
@@ -29,8 +29,9 @@ func (ao *Add) canEval(cep DummyProtocol)(error, string){
 	return err, "Add"
 }
 
-func (ao *Add) Eval(cep DummyProtocol){
+func (ao *Add) Eval(cep DummyProtocol)(uint64){
 	cep.peerCircuit[ao.Out] = cep.peerCircuit[ao.In1] + cep.peerCircuit[ao.In2]
+	return cep.peerCircuit[ao.Out]
 }
 
 func (so *Sub) canEval(cep DummyProtocol)(error, string){
@@ -45,8 +46,9 @@ func (so *Sub) canEval(cep DummyProtocol)(error, string){
 	return err, "Sub"
 }
 
-func (so *Sub) Eval(cep DummyProtocol){
+func (so *Sub) Eval(cep DummyProtocol)(uint64){
 	cep.peerCircuit[so.Out] = cep.peerCircuit[so.In1] - cep.peerCircuit[so.In2]
+	return cep.peerCircuit[so.Out]
 }
 
 func (aco *AddCst) canEval(cep DummyProtocol)(error, string){
@@ -60,13 +62,14 @@ func (aco *AddCst) canEval(cep DummyProtocol)(error, string){
 	return err, "Addcst"
 }
 
-func (aco *AddCst) Eval(cep DummyProtocol){
+func (aco *AddCst) Eval(cep DummyProtocol)(uint64){
 	if cep.ID == 0{
 		cep.peerCircuit[aco.Out] = cep.peerCircuit[aco.In] + aco.CstValue
 	}
 	if cep.ID != 0 {
 		cep.peerCircuit[aco.Out] = cep.peerCircuit[aco.In]
 	}
+	return cep.peerCircuit[aco.Out]
 }
 
 func (mo *Mult) canEval(cep DummyProtocol)(error, string){
@@ -81,7 +84,7 @@ func (mo *Mult) canEval(cep DummyProtocol)(error, string){
 	return err, "Mult"
 }
 
-func (mo *Mult) Eval(cep DummyProtocol){
+func (mo *Mult) Eval(cep DummyProtocol)(uint64){
 
 	var xminusa = cep.peerCircuit[mo.In1] - cep.BeaverA
 	var yminusb = cep.peerCircuit[mo.In2] - cep.BeaverB
@@ -96,7 +99,7 @@ func (mo *Mult) Eval(cep DummyProtocol){
 		cep.peerCircuit[mo.Out] = My_c + cep.peerCircuit[mo.In1] * yminusb + cep.peerCircuit[mo.In2] * xminusa
 		time.Sleep(time.Second/10)
 		}
-
+		return cep.peerCircuit[mo.Out]
 }
 
 func (mco *MultCst) canEval(cep DummyProtocol)(error, string){
@@ -110,8 +113,9 @@ func (mco *MultCst) canEval(cep DummyProtocol)(error, string){
 	return err, "MultCst"
 }
 
-func (mco *MultCst) Eval(cep DummyProtocol){
+func (mco *MultCst) Eval(cep DummyProtocol)(uint64){
 	cep.peerCircuit[mco.Out] = cep.peerCircuit[mco.In] * mco.CstValue
+	return cep.peerCircuit[mco.Out]
 }
 
 func (ro *Reveal) canEval(cep DummyProtocol)(error, string){
@@ -125,7 +129,7 @@ func (ro *Reveal) canEval(cep DummyProtocol)(error, string){
 	return err, "Reveal"
 }
 
-func (ro *Reveal) Eval(cep DummyProtocol){
+func (ro *Reveal) Eval(cep DummyProtocol) (uint64){
 	for _, peer := range cep.Peers {
 		if peer.ID != cep.ID {
 			peer.Chan <- DummyMessage{cep.ID, cep.peerCircuit[ro.In]}
@@ -138,13 +142,8 @@ func (ro *Reveal) Eval(cep DummyProtocol){
 		cep.peerCircuit[ro.Out] += m.Value
 		received++
 		if received == len(cep.Peers)-1 {
-			cep.Output = cep.peerCircuit[ro.Out]
-			fmt.Println(cep.ID, "completed with output", cep.Output)
-			break
+			close(cep.Chan)
 		}
 	}
-
-	if cep.WaitGroup != nil {
-		cep.WaitGroup.Done()
-	}
+	return cep.peerCircuit[ro.Out]
 }

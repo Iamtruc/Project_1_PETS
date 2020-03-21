@@ -7,7 +7,8 @@ type GateID uint64
 type Operation interface {
 	Output() WireID
 	canEval(cep DummyProtocol) (error, string)// Added
-	Eval(cep DummyProtocol)// Added
+	Eval(cep DummyProtocol) uint64// Added
+
 }
 
 type Input struct {

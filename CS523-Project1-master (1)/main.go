@@ -6,7 +6,51 @@ import (
 	"strconv"
 	"time"
 )
-
+// The main file takes [Party ID] and [Inputs] as arguments and evaluates the circuit names NewMyCircuit
+// The circuit is hard coded for the moment.
+var NewMyCircuit = []Operation{
+	&Input{
+		Party: 0,
+		Out:   0,
+	},
+	&Input{
+		Party: 1,
+		Out:   1,
+	},
+	&Input{
+		Party: 2,
+		Out:   2,
+	},
+	&Mult{
+		In1: 0,
+		In2: 1,
+		Out: 3,
+	},
+	&Mult{
+		In1:  0,
+		In2:  1,
+		Out : 4,
+	},
+	&Mult{
+		In1:  0,
+		In2:  2,
+		Out : 5,
+	},
+	&Add{
+		In1: 3,
+		In2: 4,
+		Out: 6,
+	},
+	&Add{
+		In1: 5,
+		In2: 6,
+		Out: 7,
+	},
+	&Reveal{
+		In:  7,
+		Out: 8,
+	},
+}
 
 func main() {
 	prog := os.Args[0]
@@ -29,11 +73,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	Client(PartyID(partyID), partyInput)
+	Client(PartyID(partyID), partyInput, NewMyCircuit)
 }
 
 
-func Client(partyID PartyID, partyInput uint64) {
+
+// Unused
+
+func Client(partyID PartyID, partyInput uint64, evalCircuit []Operation) uint64{
 
 	//N := uint64(len(peers))
 	peers := map[PartyID]string {
@@ -61,8 +108,23 @@ func Client(partyID PartyID, partyInput uint64) {
 	// Bind evaluation protocol to the network
 	dummyProtocol.BindNetwork(network)
 
-	// Evaluate the circuit
-	dummyProtocol.Run()
+	//dummyProtocol.WaitGroup = wg
 
-	fmt.Println(lp, "completed with output", dummyProtocol.Output)
+	// Creating the beaverprotocol
+	beaverprotocol := lp.NewBeaverProtocol()
+	dummyProtocol.BeaverProt = beaverprotocol
+	beaverprotocol.ID = dummyProtocol.ID
+
+	// We now have to split our share among our participants.
+	dummyProtocol.peerInput = make(map[PartyID]uint64)
+	dummyProtocol.peerCircuit = make(map[WireID]uint64)
+	var truc = map[PartyID]map[GateID]uint64{partyID:{GateID(partyID):partyInput}}
+	dummyProtocol.Splitshare(truc)
+	<- time.After(time.Second)
+
+	// Evaluate the circuit
+	dummyProtocol.readcircuit(evalCircuit)
+	<- time.After(time.Second)
+
+	return(dummyProtocol.Output)
 }
