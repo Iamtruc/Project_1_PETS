@@ -23,16 +23,16 @@ var NewMyCircuit = []Operation{
 	},
 	&Mult{
 		In1: 0,
-		In2: 1,
+		In2: 0,
 		Out: 3,
 	},
 	&Mult{
-		In1:  0,
+		In1:  1,
 		In2:  1,
 		Out : 4,
 	},
 	&Mult{
-		In1:  0,
+		In1:  2,
 		In2:  2,
 		Out : 5,
 	},
@@ -50,6 +50,35 @@ var NewMyCircuit = []Operation{
 		In:  7,
 		Out: 8,
 	},
+}
+
+var Circuit = []Operation{
+&Input{
+Party: 0,
+Out:   0,
+},
+&Input{
+Party: 1,
+Out:   1,
+},
+&Input{
+Party: 2,
+Out:   2,
+},
+&Add{
+In1: 0,
+In2: 1,
+Out: 3,
+},
+&Add{
+In1:  2,
+In2:  3,
+Out : 4,
+},
+&Reveal{
+In:  4,
+Out: 5,
+},
 }
 
 func main() {
@@ -73,14 +102,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	Client(PartyID(partyID), partyInput, NewMyCircuit)
+	Client(PartyID(partyID), partyInput)
 }
 
-
-
-// Unused
-
-func Client(partyID PartyID, partyInput uint64, evalCircuit []Operation) uint64{
+func Client(partyID PartyID, partyInput uint64) {
 
 	//N := uint64(len(peers))
 	peers := map[PartyID]string {
@@ -108,23 +133,33 @@ func Client(partyID PartyID, partyInput uint64, evalCircuit []Operation) uint64{
 	// Bind evaluation protocol to the network
 	dummyProtocol.BindNetwork(network)
 
-	//dummyProtocol.WaitGroup = wg
-
 	// Creating the beaverprotocol
 	beaverprotocol := lp.NewBeaverProtocol()
 	dummyProtocol.BeaverProt = beaverprotocol
 	beaverprotocol.ID = dummyProtocol.ID
 
+	// Create the network for the circuit
+	network2, err := NewTCPNetwork(lp)
+	check(err)
+
+	// Connect the circuit network
+	err = network2.Connect(lp)
+	check(err)
+
+	beaverprotocol.BindNetwork(network2)
+
 	// We now have to split our share among our participants.
 	dummyProtocol.peerInput = make(map[PartyID]uint64)
 	dummyProtocol.peerCircuit = make(map[WireID]uint64)
+
 	var truc = map[PartyID]map[GateID]uint64{partyID:{GateID(partyID):partyInput}}
 	dummyProtocol.Splitshare(truc)
-	<- time.After(time.Second)
+	time.Sleep(time.Second/4)
 
 	// Evaluate the circuit
-	dummyProtocol.readcircuit(evalCircuit)
-	<- time.After(time.Second)
+	time.Sleep(time.Second/4)
+	dummyProtocol.readcircuit(NewMyCircuit)
+	//dummyProtocol.Run()
 
-	return(dummyProtocol.Output)
-}
+	fmt.Println(lp, "completed with output", dummyProtocol.Output)
+	}

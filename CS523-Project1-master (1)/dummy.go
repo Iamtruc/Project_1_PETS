@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"net"
+	"time"
 )
 
 type DummyMessage struct {
@@ -21,7 +22,7 @@ type DummyProtocol struct {
 	BeaverA uint64// Added
 	BeaverB uint64// Added
 	BeaverC uint64// Added
-	BeaverProt *BeaverProtocol
+	BeaverProt *BeaverProtocol// Added
 	Input uint64
 	Output uint64
 }
@@ -57,6 +58,11 @@ func (cep *DummyProtocol) BindNetwork(nw *TCPNetworkStruct) {
 		}
 
 		rp := cep.Peers[partyID]
+
+		time.Sleep(time.Second)//The program would crash because the peers wouldn't have enough time to connect.
+		//I added a time.Sleep here to slow down the program.
+		//By trial and error, we saw that the program worked for 1 second of sleep.
+		// We are conscious that it is sot an optimal solution.
 
 		// Receiving loop from remote
 		go func(conn net.Conn, rp *DummyRemote) {

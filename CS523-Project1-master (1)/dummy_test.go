@@ -64,10 +64,12 @@ func TestEval(t *testing.T) {
 				}
 			}
 
-			if correct == int(N){
+			switch correct {
+			case int(N):
 				fmt.Println("test completed")
-			}
-		})
+			default:
+				fmt.Println("Failed")
+		}
+	})
 	}
-
 }
