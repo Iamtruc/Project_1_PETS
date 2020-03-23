@@ -8,6 +8,7 @@ type Operation interface {
 	Output() WireID
 	canEval(cep DummyProtocol) (error, string)// Added
 	Eval(cep DummyProtocol) uint64// Added
+	Identify() string //Added
 
 }
 

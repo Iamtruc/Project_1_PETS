@@ -21,64 +21,25 @@ var NewMyCircuit = []Operation{
 		Party: 2,
 		Out:   2,
 	},
-	&Mult{
+	&Add{
 		In1: 0,
-		In2: 0,
+		In2: 1,
 		Out: 3,
 	},
-	&Mult{
-		In1:  1,
-		In2:  1,
+	&Add{
+		In1:  2,
+		In2:  3,
 		Out : 4,
 	},
-	&Mult{
-		In1:  2,
-		In2:  2,
-		Out : 5,
-	},
-	&Add{
-		In1: 3,
-		In2: 4,
-		Out: 6,
-	},
-	&Add{
-		In1: 5,
-		In2: 6,
-		Out: 7,
+	&MultCst{
+		In: 4,
+		CstValue: 5,
+		Out:  5,
 	},
 	&Reveal{
-		In:  7,
-		Out: 8,
+		In:  5,
+		Out: 6,
 	},
-}
-
-var Circuit = []Operation{
-&Input{
-Party: 0,
-Out:   0,
-},
-&Input{
-Party: 1,
-Out:   1,
-},
-&Input{
-Party: 2,
-Out:   2,
-},
-&Add{
-In1: 0,
-In2: 1,
-Out: 3,
-},
-&Add{
-In1:  2,
-In2:  3,
-Out : 4,
-},
-&Reveal{
-In:  4,
-Out: 5,
-},
 }
 
 func main() {
@@ -138,20 +99,20 @@ func Client(partyID PartyID, partyInput uint64) {
 	dummyProtocol.BeaverProt = beaverprotocol
 	beaverprotocol.ID = dummyProtocol.ID
 
-	// Create the network for the circuit
+	// Create the network for the beaverprotocols
 	network2, err := NewTCPNetwork(lp)
 	check(err)
 
-	// Connect the circuit network
+	// Connect the beaverprotocol network
 	err = network2.Connect(lp)
 	check(err)
-
 	beaverprotocol.BindNetwork(network2)
 
 	// We now have to split our share among our participants.
 	dummyProtocol.peerInput = make(map[PartyID]uint64)
 	dummyProtocol.peerCircuit = make(map[WireID]uint64)
 
+	// Split the share between the different peers
 	var truc = map[PartyID]map[GateID]uint64{partyID:{GateID(partyID):partyInput}}
 	dummyProtocol.Splitshare(truc)
 	time.Sleep(time.Second/4)
@@ -159,7 +120,6 @@ func Client(partyID PartyID, partyInput uint64) {
 	// Evaluate the circuit
 	time.Sleep(time.Second/4)
 	dummyProtocol.readcircuit(NewMyCircuit)
-	//dummyProtocol.Run()
 
 	fmt.Println(lp, "completed with output", dummyProtocol.Output)
 	}

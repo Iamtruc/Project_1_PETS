@@ -13,11 +13,17 @@ func TestEval(t *testing.T) {
 		t.Run("circuit"+strconv.Itoa(i),func(t *testing.T) {
 			my_circuit := TestCircuits[i]
 			peers := my_circuit.Peers
+			NbMult := 0 //Counts the number of multiplications in the circuit.
 			N := uint64(len(peers))
 			P := make([]*LocalParty, N, N)
 			dummyProtocol := make([]*DummyProtocol, N, N)
 			beaverprotocol := make([]*BeaverProtocol, N, N)
 
+			for _, element := range my_circuit.Circuit {
+				if element.Identify() == "Mult" {
+					NbMult++
+				}
+			}
 			var err error
 			wg := new(sync.WaitGroup)
 			for i := range peers {
@@ -26,21 +32,25 @@ func TestEval(t *testing.T) {
 				check(err)
 
 				dummyProtocol[i] = P[i].NewDummyProtocol(uint64(i + 10))
-				beaverprotocol[i] = P[i].NewBeaverProtocol()
-				dummyProtocol[i].BeaverProt = beaverprotocol[i]
-				beaverprotocol[i].ID = dummyProtocol[i].ID
-			}
+				if NbMult > 0 {
+					beaverprotocol[i] = P[i].NewBeaverProtocol()
+					dummyProtocol[i].BeaverProt = beaverprotocol[i]
+					beaverprotocol[i].ID = dummyProtocol[i].ID
+					beaverprotocol[i].Generate_input(N)
+				}
+				}
+
 
 			network := GetTestingTCPNetwork(P)
 
 			for i, Pi := range dummyProtocol {
 				Pi.BindNetwork(network[i])
 			}
-
-			network = GetTestingTCPNetwork(P)
-
-			for i, Pi := range beaverprotocol {
-				Pi.BindNetwork(network[i])
+			if NbMult >0 {
+				network = GetTestingTCPNetwork(P)
+				for i, Pi := range beaverprotocol {
+					Pi.BindNetwork(network[i])
+				}
 			}
 
 			for _, p := range dummyProtocol {

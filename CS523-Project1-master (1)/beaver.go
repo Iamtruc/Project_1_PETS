@@ -2,7 +2,10 @@ package main
 
 import (
 	"encoding/binary"
+	"fmt"
 	"github.com/ldsec/lattigo/bfv" //The lattigo file was stored locally. Golang imports the local file
+	//"math"
+
 	//"github.com/ldsec/lattigo/ring"
 	"math/rand"
 	"net"
@@ -13,7 +16,6 @@ var N = params.LogN
 var T = params.T
 var sigm = params.Sigma
 var Q = params.LogQi
-
 
 type BeaverProtocol struct {
 	*LocalParty
@@ -53,6 +55,38 @@ func (lp *LocalParty) NewBeaverProtocol() *BeaverProtocol {
 		}
 	}
 	return beav
+}
+
+func (Beav *BeaverProtocol)Generate_input(nbBeaver uint64){
+	var vecta = newRandomVec(N,T)
+	var vectb = newRandomVec(N,T)
+	//var vectc = mulVec(vecta, vectb)
+	//var vectd = make([]uint64, N)
+	//var Bound = math.Floor(6*sigm)
+	var aPlaintext  = bfv.NewPlaintext(params)
+	var bPlaintext  = bfv.NewPlaintext(params)
+
+	var encoder = bfv.NewEncoder(params)
+	kgen :=bfv.NewKeyGenerator(params)
+
+	vectsk, _ :=  kgen.GenKeyPair()
+
+	fmt.Println(vectsk)
+
+	encryptorBeaverSk := bfv.NewEncryptorFromSk(params, vectsk)
+
+	encoder.EncodeUint(vecta, aPlaintext)
+	encoder.EncodeUint(vectb, bPlaintext)
+
+	fmt.Println(aPlaintext)
+
+	BeaverCipherText := encryptorBeaverSk.EncryptNew(aPlaintext)
+
+	fmt.Println(BeaverCipherText)
+
+
+
+
 }
 
 func (Beav *BeaverProtocol)GenInput(){

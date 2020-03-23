@@ -4,6 +4,10 @@ import (
 	"time"
 )
 
+func (io *Input) Identify()(string){
+	return "Input"
+}
+
 func (io *Input) canEval(cep DummyProtocol)(error, string){
 	var err error
 	if _, ok := cep.peerCircuit[io.Out]; ok{
@@ -15,6 +19,10 @@ func (io *Input) canEval(cep DummyProtocol)(error, string){
 func (io *Input) Eval(cep DummyProtocol)(uint64){
 	cep.peerCircuit[io.Out] = cep.peerInput[io.Party]
 	return cep.peerCircuit[io.Out]
+}
+
+func (ao *Add) Identify()(string){
+	return "Add"
 }
 
 func (ao *Add) canEval(cep DummyProtocol)(error, string){
@@ -34,6 +42,10 @@ func (ao *Add) Eval(cep DummyProtocol)(uint64){
 	return cep.peerCircuit[ao.Out]
 }
 
+func (so *Sub) Identify()(string){
+	return "Sub"
+}
+
 func (so *Sub) canEval(cep DummyProtocol)(error, string){
 	var err error
 	_, ok1 := cep.peerCircuit[so.In1]
@@ -49,6 +61,10 @@ func (so *Sub) canEval(cep DummyProtocol)(error, string){
 func (so *Sub) Eval(cep DummyProtocol)(uint64){
 	cep.peerCircuit[so.Out] = cep.peerCircuit[so.In1] - cep.peerCircuit[so.In2]
 	return cep.peerCircuit[so.Out]
+}
+
+func (aco *AddCst) Identify()(string){
+	return "AddCst"
 }
 
 func (aco *AddCst) canEval(cep DummyProtocol)(error, string){
@@ -70,6 +86,10 @@ func (aco *AddCst) Eval(cep DummyProtocol)(uint64){
 		cep.peerCircuit[aco.Out] = cep.peerCircuit[aco.In]
 	}
 	return cep.peerCircuit[aco.Out]
+}
+
+func (mo *Mult) Identify()(string){
+	return "Mult"
 }
 
 func (mo *Mult) canEval(cep DummyProtocol)(error, string){
@@ -102,6 +122,10 @@ func (mo *Mult) Eval(cep DummyProtocol)(uint64){
 		return cep.peerCircuit[mo.Out]
 }
 
+func (mco *MultCst) Identify()(string){
+	return "MultCst"
+}
+
 func (mco *MultCst) canEval(cep DummyProtocol)(error, string){
 	var err error
 	_, ok1 := cep.peerCircuit[mco.In]
@@ -116,6 +140,10 @@ func (mco *MultCst) canEval(cep DummyProtocol)(error, string){
 func (mco *MultCst) Eval(cep DummyProtocol)(uint64){
 	cep.peerCircuit[mco.Out] = cep.peerCircuit[mco.In] * mco.CstValue
 	return cep.peerCircuit[mco.Out]
+}
+
+func (ro *Reveal) Identify()(string){
+	return "Reveal"
 }
 
 func (ro *Reveal) canEval(cep DummyProtocol)(error, string){

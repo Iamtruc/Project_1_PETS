@@ -62,7 +62,9 @@ func (cep *DummyProtocol) BindNetwork(nw *TCPNetworkStruct) {
 		time.Sleep(time.Second)//The program would crash because the peers wouldn't have enough time to connect.
 		//I added a time.Sleep here to slow down the program.
 		//By trial and error, we saw that the program worked for 1 second of sleep.
-		// We are conscious that it is sot an optimal solution.
+		// We are conscious that it is not an optimal solution, but we would rather our program worked and moving the time.Sleep in the main.go didn't solve the problem
+		// This problem was already present BEFORE we changed anything and only concerns the main.go.
+		// If you just want to use go test, you can comment the time.Sleep()
 
 		// Receiving loop from remote
 		go func(conn net.Conn, rp *DummyRemote) {
