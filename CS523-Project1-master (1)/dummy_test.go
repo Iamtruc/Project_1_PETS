@@ -5,7 +5,10 @@ import (
 	"strconv"
 	"sync"
 	"testing"
+	"time"
 )
+
+// go test -v -run=TestEval/circuit6
 
 func TestEval(t *testing.T) {
 	for i:= 0;i<len(TestCircuits);i++{
@@ -36,10 +39,10 @@ func TestEval(t *testing.T) {
 					beaverprotocol[i] = P[i].NewBeaverProtocol()
 					dummyProtocol[i].BeaverProt = beaverprotocol[i]
 					beaverprotocol[i].ID = dummyProtocol[i].ID
-					beaverprotocol[i].Generate_input(N)
+					go beaverprotocol[i].Generate_input(N)
 				}
-				}
-
+			}
+			time.Sleep(time.Second)
 
 			network := GetTestingTCPNetwork(P)
 
@@ -52,6 +55,7 @@ func TestEval(t *testing.T) {
 					Pi.BindNetwork(network[i])
 				}
 			}
+			time.Sleep(time.Second)
 
 			for _, p := range dummyProtocol {
 				p.peerInput = make(map[PartyID]uint64)

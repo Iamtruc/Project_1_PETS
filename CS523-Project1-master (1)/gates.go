@@ -1,8 +1,6 @@
 package main
 
-import (
-	"time"
-)
+import "time"
 
 func (io *Input) Identify()(string){
 	return "Input"

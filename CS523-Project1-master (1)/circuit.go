@@ -13,7 +13,7 @@ func (cep *DummyProtocol) Splitshare(Inputs map[PartyID]map[GateID]uint64)(){
 		cep.peerInput[cep.ID] = element
 	}
 
-	// We then generate our shares
+	// We then generate our shares.
 	my_len := len(cep.Peers)
 	var list_split []uint64
 	var leftover uint64 = cep.peerInput[cep.ID]
@@ -61,12 +61,12 @@ func (cep *DummyProtocol) readcircuit(circuit []Operation){
 			case "Mult":
 				switch cep.ID{
 				case 0:
-					cep.BeaverProt.GenInput()
-					cep.BeaverA, cep.BeaverB, cep.BeaverC = cep.BeaverProt.Run()
+					//cep.BeaverProt.GenInput()
+					//cep.BeaverA, cep.BeaverB, cep.BeaverC = cep.BeaverProt.Run()
 					time.Sleep(time.Second/5)
 					op.Eval(*cep)
 				default:
-					cep.BeaverA, cep.BeaverB, cep.BeaverC = cep.BeaverProt.Run()
+					//cep.BeaverA, cep.BeaverB, cep.BeaverC = cep.BeaverProt.Run()
 					time.Sleep(time.Second/5)
 					op.Eval(*cep)
 				}
