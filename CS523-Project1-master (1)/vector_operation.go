@@ -4,6 +4,8 @@ import(
 	"math/rand"
 	)
 
+// Operations on vectors.
+
 func newRandomVec(n,T uint64)([]uint64){
 	var MyVec []uint64
 	var MyLen = int(n)

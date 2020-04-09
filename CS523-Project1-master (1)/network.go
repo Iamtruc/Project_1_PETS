@@ -12,6 +12,7 @@ import (
 const CONNECT_ATTEMPTS = 4
 const CONNECT_ATTEMPTS_DELAY = 100
 
+// This file was not modified
 
 type Network interface {
 	Connect(party *LocalParty) error

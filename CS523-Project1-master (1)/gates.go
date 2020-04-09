@@ -2,6 +2,10 @@ package main
 
 import "time"
 
+// We define three methods for each operation : Identify which indicates what is the nature of the operation
+//The method "canEval" which checks that the operation will not lead to an error
+// We then have the operation "Eval" which carries out the operation.
+
 func (io *Input) Identify()(string){
 	return "Input"
 }
@@ -77,6 +81,7 @@ func (aco *AddCst) canEval(cep DummyProtocol)(error, string){
 }
 
 func (aco *AddCst) Eval(cep DummyProtocol)(uint64){
+	// Only one of the peers should add the constant, or else the result will be off. We choose that the operations are carried out by the peer whose ID is 0
 	if cep.ID == 0{
 		cep.peerCircuit[aco.Out] = cep.peerCircuit[aco.In] + aco.CstValue
 	}
@@ -103,6 +108,7 @@ func (mo *Mult) canEval(cep DummyProtocol)(error, string){
 }
 
 func (mo *Mult) Eval(cep DummyProtocol)(uint64){
+	// The multiplication is slightly more complicated, it demands to exchange the values with the Beaver Triplets
 
 	var xminusa = cep.peerCircuit[mo.In1] - cep.BeaverA
 	var yminusb = cep.peerCircuit[mo.In2] - cep.BeaverB
@@ -156,6 +162,7 @@ func (ro *Reveal) canEval(cep DummyProtocol)(error, string){
 }
 
 func (ro *Reveal) Eval(cep DummyProtocol) (uint64){
+	// In Reveal, the peers exchange their results and reconstruct the total. They then close the circuit.
 	for _, peer := range cep.Peers {
 		if peer.ID != cep.ID {
 			peer.Chan <- DummyMessage{cep.ID, cep.peerCircuit[ro.In]}

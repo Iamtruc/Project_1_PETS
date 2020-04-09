@@ -37,7 +37,7 @@ func (cep *DummyProtocol) Splitshare(Inputs map[PartyID]map[GateID]uint64)(){
 		}
 	}
 
-	// We then wait for them to send their shares to us.
+	// We then wait for them to send their shares back.
 	received := 0
 	for m := range cep.Chan {
 		cep.peerInput[m.Party] = m.Value
@@ -56,8 +56,10 @@ func (cep *DummyProtocol) readcircuit(circuit []Operation){
 	// We take a circuit as input and read the circuit until the end.
 	for _,op := range circuit{
 		err, name := op.canEval(*cep)
+		// We check for errors, and then, we check for the name of the gate.
 		if (err == nil){
 			switch name{
+			// If we have a multiplication gate, we get a Beaver triplet
 			case "Mult":
 				switch cep.ID{
 				case 0:
@@ -70,17 +72,18 @@ func (cep *DummyProtocol) readcircuit(circuit []Operation){
 					time.Sleep(time.Second/5)
 					op.Eval(*cep)
 				}
-
+				// If we have a reveal gate, we update our output
 			case "Reveal":
 				cep.Output = op.Eval(*cep)
 				if cep.WaitGroup != nil {
 					cep.WaitGroup.Done()
 				}
-
+			// In the general case, we just run the gate
 			default:
 				op.Eval(*cep)
 			}
 		}
+		// If we have an error, print a subtle message to inform user.
 		if (err != nil){
 			fmt.Println("Cataschtroumpf")
 		}

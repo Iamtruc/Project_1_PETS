@@ -10,7 +10,7 @@ type DummyMessage struct {
 	Party PartyID
 	Value uint64
 }
-// Don't forget to rename this part "online.go"
+// Strucute for our protocols
 type DummyProtocol struct {
 	*LocalParty
 	Chan  		 chan DummyMessage
@@ -91,7 +91,7 @@ func (cep *DummyProtocol) BindNetwork(nw *TCPNetworkStruct) {
 	}
 }
 
-// Useless, to be deleted.
+// Useless, not used in our code.
 
 func (cep *DummyProtocol) Run() {
 

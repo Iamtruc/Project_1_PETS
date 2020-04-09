@@ -4,6 +4,8 @@ type WireID uint64
 
 type GateID uint64
 
+// Operations can now be evaluated
+
 type Operation interface {
 	Output() WireID
 	canEval(cep DummyProtocol) (error, string)// Added

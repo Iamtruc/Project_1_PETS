@@ -7,6 +7,8 @@ type TestCircuit struct {
 	ExpOutput uint64                     // Expected output
 }
 
+// File unchanged
+
 var TestCircuits = []*TestCircuit{&Circuit1, &Circuit2, &Circuit3, &Circuit4, &Circuit5, &Circuit6, &Circuit7, &Circuit8}
 
 var Circuit1 = TestCircuit{ 

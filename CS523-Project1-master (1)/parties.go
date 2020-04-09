@@ -5,6 +5,8 @@ import (
 	"sync"
 )
 
+// File unchanged
+
 type PartyID uint64
 
 type Party struct {

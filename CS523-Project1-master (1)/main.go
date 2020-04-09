@@ -95,8 +95,7 @@ func Client(partyID PartyID, partyInput uint64) {
 
 	time.Sleep(time.Second)//The program would crash because the peers wouldn't have enough time to connect.
 	//I added a time.Sleep here to slow down the program.
-	//By trial and error, we saw that the program worked for 1 second of sleep.
-	// We are conscious that it is not an optimal solution, but we would rather our program worked and moving the time.Sleep in the main.go didn't solve the problem
+	// We are conscious that it is not an optimal solution, but we would rather our program worked
 	// This problem was already present before we changed anything and only concerns the main.go.
 	dummyProtocol.BindNetwork(network)
 	time.Sleep(time.Second)
